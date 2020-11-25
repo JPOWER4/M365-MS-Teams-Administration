@@ -1,0 +1,23 @@
+Install-Module ExchangeOnlineManagement
+
+Connect-ExchangeOnline
+
+New-Mailbox -Name "NY-TeamsRoom1" -Alias NY-TeamsRoom1 -Room -EnableRoomMailboxAccount $true -MicrosoftOnlineServicesID NY-TeamsRoom1@<YourTenant>.onmicrosoft.com -RoomMailboxPassword (ConvertTo-SecureString -String 'pass@word1' -AsPlainText -Force)
+
+Set-CalendarProcessing -Identity "NY-TeamsRoom1" -AutomateProcessing AutoAccept -AddOrganizerToSubject $false -DeleteComments $false -DeleteSubject $false -RemovePrivateProperty $false -AddAdditionalResponse $true -AdditionalResponse "This is a Teams Meeting room"
+
+Disconnect-ExchangeOnline
+
+Connect-AzureAD
+
+Get-AzureADUser | Where {$_.DisplayName -eq "NY-TeamsRoom1"} | Set-AzureADUser -PasswordPolicies DisablePasswordExpiration
+
+Disconnect-AzureAD
+
+Connect-msolservice
+
+Get-MsolAccountSku
+
+Set-MsolUser -UserPrincipalName "NY-TeamsRoom1@M365x554948.onmicrosoft.com" -UsageLocation US
+
+Set-MsolUserLicense -UserPrincipalName "NY-TeamsRoom1@M365x554948.onmicrosoft.com" -AddLicenses "M365x554948:MEETING_ROOM"
